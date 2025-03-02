@@ -1,5 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
+import pandas as pd
+
+lista_noticias = []
 
 #Faz a requisição
 response = requests.get('https://g1.globo.com/')
@@ -11,17 +14,21 @@ content = response.content
 site = BeautifulSoup(content, 'html.parser') #Convertendo Html para um objeto BeautifulSoup
 
 # HTML da noticia - Vai dentro do site e encontra uma div cuja a classe é 'feed-post-body', ao encontrar a div jogamos na variavel noticia
-noticia = site.find('div', attrs={'class': 'feed-post-body'}) #Retorna a noticia especifica dentro do inspecionar
+noticias = site.find_all('div', attrs={'class': 'feed-post-body'}) #Retorna todas as noticias
 
+for noticia in noticias:
 
-#Titulo - Ao encontrar a noticia pedimos que vá até ela e encontre uma tag 'a' que tenha a classe 'feed-post-link' e jogamos na variavel titulo, assim obtendo o titulo da noticia
-titulo = noticia.find('a', attrs={'class' : 'feed-post-link'})
+ titulo = noticia.find('a', attrs={'class' : 'feed-post-link'})
 
-print(titulo)
+subtitulo = noticia.find('div', attrs={'class': 'feed-post-body-resumo'})
 
-#Pegar conteudo da noticia:
-print(titulo.text)
+if (subtitulo):
+ lista_noticias.append([titulo.text, subtitulo.text, titulo['href']])
+else: 
+ lista_noticias.append([titulo.text, '', titulo['href']])
 
-#pegar subtitulo da noticia: 
-#subtitulo = noticia.find('div', attrs={'class': 'feed-post-body-resumo'})
-#print(subtitulo.text)
+news = pd.DataFrame(lista_noticias, columns=['Titulo','Subtitulo', 'Link'])
+
+news.to_excel('noticias.xlsx', index=False)
+
+print(news)
