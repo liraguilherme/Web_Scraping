@@ -1,0 +1,24 @@
+import requests
+from bs4 import BeautifulSoup
+
+url_base = 'https://lista.mercadolivre.com.br/'
+
+produto = input('Qual produto você deseja? ')
+
+response = requests.get(url_base + produto)
+
+site = BeautifulSoup(response.text, 'html.parser')
+
+produtos = site.find_all('div', attrs={'class': 'ui-search-result__wrapper'}) 
+
+for produto in produtos:
+
+  titulo = produto.find('h3', attrs={'class': 'poly-component__title-wrapper'})
+
+  link = produto.find('a', attrs={'class': 'poly-component__title'})
+
+#print(produto.prettify())
+  print('Titulo do produto:' , titulo.text)
+  print('Link do produto:', link['href'])
+
+  print('\n\n')
